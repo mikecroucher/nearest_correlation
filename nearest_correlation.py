@@ -38,7 +38,7 @@ def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
         if flag == 0:
             X = proj_spd(R_wtd)
         elif flag == 1:
-            raise
+            raise NotImplemented("Setting flag to 1 is currently not implemented")
         X = X / Whalf
         dS = X - R
         Yold = copy(Y)
@@ -51,7 +51,7 @@ def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
 
         iter = iter + 1
         if iter > maxits:
-            print("Too many iterations")
+            print("Number of iterations exceeds maxits")
             return X, iter
         X = copy(Y)
 
