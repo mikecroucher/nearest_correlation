@@ -1,8 +1,8 @@
 # Python versions of nearest correlation matrix algorithms.
 
-This module will eventually contain several algorithms for computing the nearest correlation matrix.
+This module will eventually contain several algorithms for solving nearest correlation matrix problems.
 
-The only algorithm currently implemented is that of Nick Higham. The code in this module is a port of the MATLAB original at http://nickhigham.wordpress.com/2013/02/13/the-nearest-correlation-matrix/
+The only algorithm currently implemented is Nick Higham's. The code in this module is a port of the MATLAB original at http://nickhigham.wordpress.com/2013/02/13/the-nearest-correlation-matrix/
 
 Run the (currently rather small) test suite as follows:
 
