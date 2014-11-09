@@ -13,7 +13,7 @@ class NotImplemented(Exception):
 
 
 def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
-             weights=np.array([]), print=false):
+             weights=np.array([]), verbose=False):
     """
     X = nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
         weights=np.array([]),print=0)
@@ -39,7 +39,7 @@ def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
 
     weights is a vector defining a diagonal weight matrix diag(W).
 
-    print = true for display of intermediate output.
+    verbose = True for display of intermediate output.
     CURRENTLY NOT IMPLEMENTED
 
     ABOUT
@@ -107,7 +107,3 @@ def nonneg(A):
     B = copy(A)
     B[B < 0] = 0
     return(B)
-
-    # test=np.random.uniform(0,1,(100,100))
-    # sym=(test+test.T)/2
-    # (X1,iter)=nearcorr(sym)
