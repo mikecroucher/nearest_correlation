@@ -12,10 +12,10 @@ class NotImplemented(Exception):
     pass
 
 
-def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
+def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
              weights=np.array([]), verbose=False):
     """
-    X = nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
+    X = nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
         weights=np.array([]),print=0)
 
     Finds the nearest correlation matrix to the symmetric matrix A.
@@ -31,7 +31,7 @@ def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
     flag = 1: treat as "highly non-positive definite A" and solve
     using partial eigendecomposition (EIGS). CURRENTLY NOT IMPLEMENTED
 
-    maxits is the maximum number of iterations (default 100,
+    maxiterations is the maximum number of iterations (default 100,
     but may need to be increased).
 
     n_pos_eig (optional) is the known number of positive eigenvalues
@@ -60,7 +60,7 @@ def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
         weights = np.ones((np.shape(A)[0], 1))
     X = copy(A)
     Y = copy(A)
-    iter = 1
+    iteration = 1
     rel_diffY = inf
     rel_diffX = inf
     rel_diffXY = inf
@@ -87,13 +87,13 @@ def nearcorr(A, tol=[], flag=0, maxits=100, n_pos_eig=0,
         rel_diffY = norm(Y - Yold, 'fro') / normY
         rel_diffXY = norm(Y - X, 'fro') / normY
 
-        iter = iter + 1
-        if iter > maxits:
-            print("Number of iterations exceeds maxits")
-            return X, iter
+        iteration = iteration + 1
+        if iteration > maxiterations:
+            print("Number of iterations exceeds maxiterations")
+            return X, iteration
         X = copy(Y)
 
-    return X, iter
+    return X, iteration
 
 
 def proj_spd(A):
