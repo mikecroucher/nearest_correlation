@@ -12,8 +12,19 @@ class NotImplemented(Exception):
     pass
 
 
+class ExceededMaxIterations(Exception):
+    def __init__(self, msg, matrix=[], iteration=[], dS=[]):
+        self.msg = msg
+        self.matrix = copy(matrix)
+        self.iteration = iteration
+        self.dS = copy(dS)
+
+    def __str__(self):
+        return repr(self.msg)
+
+
 def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
-             weights=np.array([]), verbose=False):
+             weights=np.array([]), verbose=False, dS=np.array([])):
     """
     X = nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
         weights=np.array([]),print=0)
@@ -42,6 +53,10 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
     verbose = True for display of intermediate output.
     CURRENTLY NOT IMPLEMENTED
 
+    dS is the starting value for the variable dS thats used in the main loop.
+    Useful when restarting from a calculation where maxiterations
+    has been exceeded
+
     ABOUT
     ~~~~~~
     This is a Python port by Michael Croucher, November 2014
@@ -60,15 +75,25 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
         weights = np.ones((np.shape(A)[0], 1))
     X = copy(A)
     Y = copy(A)
-    iteration = 1
     rel_diffY = inf
     rel_diffX = inf
     rel_diffXY = inf
-    dS = np.zeros(np.shape(A))
+    if dS.size == 0:
+        dS = np.zeros(np.shape(A))
 
-    Whalf = np.sqrt(np.outer(weights, weights))  # Whalf = sqrt(w*w');
+    Whalf = np.sqrt(np.outer(weights, weights))
 
+    iteration = 0
     while max(rel_diffX, rel_diffY, rel_diffXY) > tol[0]:
+        if iteration + 1 > maxiterations:
+            if maxiterations == 1:
+                message = "No solution found in "\
+                          + str(iteration) + " iteration"
+            else:
+                message = "No solution found in "\
+                          + str(iteration) + " iterations"
+            raise ExceededMaxIterations(message, X, iteration, dS)
+
         Xold = copy(X)
         R = X - dS
         R_wtd = Whalf*R
@@ -81,17 +106,14 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
         dS = X - R
         Yold = copy(Y)
         Y = copy(X)
-        np.fill_diagonal(Y, 1)  # Y = proj_unitdiag(X)
+        np.fill_diagonal(Y, 1)
         normY = norm(Y, 'fro')
         rel_diffX = norm(X - Xold, 'fro') / norm(X, 'fro')
         rel_diffY = norm(Y - Yold, 'fro') / normY
         rel_diffXY = norm(Y - X, 'fro') / normY
 
-        iteration = iteration + 1
-        if iteration > maxiterations:
-            print("Number of iterations exceeds maxiterations")
-            return X, iteration
         X = copy(Y)
+        iteration = iteration + 1
 
     return X, iteration
 
