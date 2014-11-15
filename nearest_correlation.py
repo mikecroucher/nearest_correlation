@@ -85,13 +85,14 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
 
     iteration = 0
     while max(rel_diffX, rel_diffY, rel_diffXY) > tol[0]:
-        if iteration + 1 > maxiterations:
+        iteration += 1
+        if iteration > maxiterations:
             if maxiterations == 1:
                 message = "No solution found in "\
-                          + str(iteration) + " iteration"
+                          + str(maxiterations) + " iteration"
             else:
                 message = "No solution found in "\
-                          + str(iteration) + " iterations"
+                          + str(maxiterations) + " iterations"
             raise ExceededMaxIterations(message, X, iteration, dS)
 
         Xold = copy(X)
@@ -113,7 +114,6 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
         rel_diffXY = norm(Y - X, 'fro') / normY
 
         X = copy(Y)
-        iteration = iteration + 1
 
     return X, iteration
 
