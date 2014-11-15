@@ -18,7 +18,7 @@ class ResultsTests(unittest.TestCase):
                       [0, -1, 2, -1], 
                       [0, 0, -1, 2]])
 
-        (X, iter) = nearcorr(A)
+        X = nearcorr(A)
 
         expected_result = np.array([[ 1.        , -0.8084125 ,  0.1915875 ,  0.10677505],
                                     [-0.8084125 ,  1.        , -0.65623269,  0.1915875 ],
@@ -34,7 +34,7 @@ class ResultsTests(unittest.TestCase):
                       [1, 1, 1],
                       [0, 1, 1]])
 
-        (X, iter) = nearcorr(A)
+        X = nearcorr(A)
 
         expected_result = np.array([[ 1.        ,  0.76068985,  0.15729811],
                                     [ 0.76068985,  1.        ,  0.76068985],
@@ -52,7 +52,7 @@ class ResultsTests(unittest.TestCase):
 
         weights = np.array([1,2,3])
 
-        (X, iter) = nearcorr(A, weights = weights)
+        X = nearcorr(A, weights = weights)
 
         expected_result = np.array([[ 1.        , 0.66774961, 0.16723692],
                                     [ 0.66774961, 1.        , 0.84557496],
@@ -70,30 +70,30 @@ class ResultsTests(unittest.TestCase):
 
         # Do 3 iterations on A and gather the result
         try:
-            (Y, iter) = nearcorr(A, maxiterations=3)
-        except nearest_correlation.ExceededMaxIterations as e:
+            Y = nearcorr(A, max_iterations=3)
+        except nearest_correlation.ExceededMaxIterationsError as e:
           result3 = np.copy(e.matrix)
 
         # Do 1 iteration on A
         try:
-            (X, iter) = nearcorr(A, maxiterations=1)
-        except nearest_correlation.ExceededMaxIterations as e:
+            X = nearcorr(A, max_iterations=1)
+        except nearest_correlation.ExceededMaxIterationsError as e:
             X = np.copy(e.matrix)
-            dS = np.copy(e.dS)
+            ds = np.copy(e.ds)
 
         # restart from previous result and do another iteration
         try:
-            (X, iter) = nearcorr(X, maxiterations=1,dS=dS)
-        except nearest_correlation.ExceededMaxIterations as e:
+            X = nearcorr(X, max_iterations=1,dS=ds)
+        except nearest_correlation.ExceededMaxIterationsError as e:
             X  = np.copy(e.matrix)
-            dS = np.copy(e.dS)
+            ds = np.copy(e.ds)
 
         # restart from previous result and do another iteration
         try:
-            (X, iter) = nearcorr(X, maxiterations=1,dS=dS)
-        except nearest_correlation.ExceededMaxIterations as e:
+            X = nearcorr(X, max_iterations=1,dS=ds)
+        except nearest_correlation.ExceededMaxIterationsError as e:
             result1 = np.copy(e.matrix)
-            dS = np.copy(e.dS)
+            ds = np.copy(e.ds)
 
         self.assertTrue(np.all(result1 == result3))
 
@@ -107,7 +107,7 @@ class InterfaceTests(unittest.TestCase):
                       [1,1,1],
                       [1,1,1]])
 
-        self.assertRaises(nearest_correlation.NotSymmetric,nearcorr,A)
+        self.assertRaises(nearest_correlation.NotSymmetricError,nearcorr,A)
 
     # Ensure that an exception is raised when calculation does not converge befer maxiterations is exceeded
     def test_ExceededMaxIterations(self):
@@ -115,7 +115,7 @@ class InterfaceTests(unittest.TestCase):
                       [1,1,1],
                       [0,1,1]])
 
-        self.assertRaises(nearest_correlation.ExceededMaxIterations,nearcorr,A,maxiterations=10)
+        self.assertRaises(nearest_correlation.ExceededMaxIterationsError,nearcorr,A,max_iterations=10)
 
 
 def main():

@@ -4,29 +4,30 @@ from numpy import copy, dot
 from numpy.linalg import norm
 
 
-class NotSymmetric(Exception):
+class NotSymmetricError(Exception):
     pass
 
 
-class NotImplemented(Exception):
+class NotImplementedError(Exception):
     pass
 
 
-class ExceededMaxIterations(Exception):
-    def __init__(self, msg, matrix=[], iteration=[], dS=[]):
+class ExceededMaxIterationsError(Exception):
+    def __init__(self, msg, matrix=[], iteration=[], ds=[]):
         self.msg = msg
-        self.matrix = copy(matrix)
+        self.matrix = matrix
         self.iteration = iteration
-        self.dS = copy(dS)
+        self.ds = ds
 
     def __str__(self):
         return repr(self.msg)
 
 
-def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
-             weights=np.array([]), verbose=False, dS=np.array([])):
+def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
+             weights=np.array([]), verbose=False, dS=np.array([])
+             , except_on_too_many_iterations=True):
     """
-    X = nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
+    X = nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
         weights=np.array([]),print=0)
 
     Finds the nearest correlation matrix to the symmetric matrix A.
@@ -42,7 +43,7 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
     flag = 1: treat as "highly non-positive definite A" and solve
     using partial eigendecomposition (EIGS). CURRENTLY NOT IMPLEMENTED
 
-    maxiterations is the maximum number of iterations (default 100,
+    max_iterations is the maximum number of iterations (default 100,
     but may need to be increased).
 
     n_pos_eig (optional) is the known number of positive eigenvalues
@@ -68,7 +69,7 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
     """
     eps = np.spacing(1)
     if not np.all((np.transpose(A) == A)):
-        raise NotSymmetric('Input Matrix is not symmetric')
+        raise NotSymmetricError('Input Matrix is not symmetric')
     if not tol:
         tol = eps * np.shape(A)[0] * np.array([1, 1])
     if weights.size == 0:
@@ -86,14 +87,18 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
     iteration = 0
     while max(rel_diffX, rel_diffY, rel_diffXY) > tol[0]:
         iteration += 1
-        if iteration > maxiterations:
-            if maxiterations == 1:
-                message = "No solution found in "\
-                          + str(maxiterations) + " iteration"
-            else:
-                message = "No solution found in "\
-                          + str(maxiterations) + " iterations"
-            raise ExceededMaxIterations(message, X, iteration, dS)
+        if iteration > max_iterations:
+            if except_on_too_many_iterations:
+                if max_iterations == 1:
+                    message = "No solution found in "\
+                              + str(max_iterations) + " iteration"
+                else:
+                    message = "No solution found in "\
+                              + str(max_iterations) + " iterations"
+                raise ExceededMaxIterationsError(message, X, iteration, dS)
+            else: # exceptOnTooManyIterations is false so just silently
+                  # return the result even though it's not converged
+                return X
 
         Xold = copy(X)
         R = X - dS
@@ -101,7 +106,7 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
         if flag == 0:
             X = proj_spd(R_wtd)
         elif flag == 1:
-            raise NotImplemented("Setting 'flag' to 1 is currently\
+            raise NotImplementedError("Setting 'flag' to 1 is currently\
                                  not implemented.")
         X = X / Whalf
         dS = X - R
@@ -115,7 +120,7 @@ def nearcorr(A, tol=[], flag=0, maxiterations=100, n_pos_eig=0,
 
         X = copy(Y)
 
-    return X, iteration
+    return X
 
 
 def proj_spd(A):
