@@ -109,6 +109,7 @@ class InterfaceTests(unittest.TestCase):
 
         self.assertRaises(nearest_correlation.NotSymmetricError,nearcorr,A)
 
+
     # Ensure that an exception is raised when calculation does not converge befer maxiterations is exceeded
     def test_ExceededMaxIterations(self):
         A = np.array([[1,1,0],
@@ -117,6 +118,15 @@ class InterfaceTests(unittest.TestCase):
 
         self.assertRaises(nearest_correlation.ExceededMaxIterationsError,nearcorr,A,max_iterations=10)
 
+
+    # Ensure that an exception is not raised when calculation does not converge befer maxiterations is exceeded
+    # and except_on_too_many_iterations = False
+    def test_ExceededMaxIterationsFalse(self):
+        A = np.array([[1,1,0],
+                      [1,1,1],
+                      [0,1,1]])
+
+        X = nearcorr(A,max_iterations=10,except_on_too_many_iterations=False)
 
 def main():
     unittest.main()
