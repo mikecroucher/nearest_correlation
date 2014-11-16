@@ -86,7 +86,7 @@ array([[ 1.        ,  0.76073699,  0.15727601],
 ```
 #Continuing failed computations
 If a computation failed because the the number of iterations exceeded `max_iterations`, it is possible to continue by passing the exception obejct to `nearcorr`:
-```
+```python
 from nearest_correlation import nearcorr, ExceededMaxIterationsError
 import numpy as np
 
@@ -101,8 +101,9 @@ except ExceededMaxIterationsError as e:
     restart = e # capture the Exception object
     print("1 iteration wasn't enough")
 
-# start from where we left off
+# start from where we left off using the default number of `max_iterations`
 X = nearcorr(restart)
 
+# This will give the correct result
 print(X)
 ```
