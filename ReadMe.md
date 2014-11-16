@@ -10,7 +10,7 @@ Run the test suite as follows:
 python nearest_correlation_unittests.py
 ```
 
-An example computation that finds the nearest correlation matrix to the input matrix.
+An example computation that finds the nearest correlation matrix to the input matrix:
 
 ```python
 In [1]: from nearest_correlation import nearcorr
@@ -33,7 +33,7 @@ array([[ 1.        , -0.8084125 ,  0.1915875 ,  0.10677505],
 
 ```
 
-Here's an example using the `weights` parameter. `weights` is a vector defining a diagonal weight matrix diag(W).
+Here's an example using the `weights` parameter. `weights` is a vector defining a diagonal weight matrix diag(W):.
 ```python
 In [1]: from nearest_correlation import nearcorr
 
@@ -83,4 +83,26 @@ Out[10]:
 array([[ 1.        ,  0.76073699,  0.15727601],
        [ 0.76073699,  1.        ,  0.76073699],
        [ 0.15727601,  0.76073699,  1.        ]])
+```
+#Continuing failed computations
+If a computation failed because the the number of iterations exceeded `max_iterations`, it is possible to continue by passing the exception obejct to `nearcorr`:
+```
+from nearest_correlation import nearcorr, ExceededMaxIterationsError
+import numpy as np
+
+A = np.array([[1, 1, 0],
+              [1, 1, 1],
+              [0, 1, 1]])
+
+# Is one iteration enough?
+try:
+    X = nearcorr(A, max_iterations=1)
+except ExceededMaxIterationsError as e:
+    restart = e # capture the Exception object
+    print("1 iteration wasn't enough")
+
+# start from where we left off
+X = nearcorr(restart)
+
+print(X)
 ```
