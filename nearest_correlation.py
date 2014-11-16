@@ -24,8 +24,8 @@ class ExceededMaxIterationsError(Exception):
 
 
 def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
-             weights=np.array([]), verbose=False, dS=np.array([])
-             , except_on_too_many_iterations=True):
+             weights=np.array([]), verbose=False,
+             except_on_too_many_iterations=True):
     """
     X = nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
         weights=np.array([]),print=0)
@@ -34,6 +34,8 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
 
     ARGUMENTS
     ~~~~~~~~~
+    A is a symmetric numpy array or a ExceededMaxIterationsError object
+
     tol is a convergence tolerance, which defaults to 16*EPS.
     If using flag == 1, tol must be a size 2 tuple, with first component
     the convergence tolerance and second component a tolerance
@@ -54,9 +56,10 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
     verbose = True for display of intermediate output.
     CURRENTLY NOT IMPLEMENTED
 
-    dS is the starting value for the variable dS thats used in the main loop.
-    Useful when restarting from a calculation where maxiterations
-    has been exceeded
+    except_on_too_many_iterations = True to raise an exeption when
+    number of iterations exceeds max_iterations
+    except_on_too_many_iterations = False to silently return the best result
+    found after max_iterations number of iterations
 
     ABOUT
     ~~~~~~
@@ -67,6 +70,15 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
     matrix---A problem from finance. IMA J. Numer. Anal.,
     22(3):329-343, 2002.
     """
+
+    # If input is an ExceededMaxIterationsError object this
+    # is a restart computation
+    if (isinstance(A, ExceededMaxIterationsError)):
+        ds = copy(A.ds)
+        A = copy(A.matrix)
+    else:
+        ds = np.zeros(np.shape(A))
+
     eps = np.spacing(1)
     if not np.all((np.transpose(A) == A)):
         raise NotSymmetricError('Input Matrix is not symmetric')
@@ -79,8 +91,6 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
     rel_diffY = inf
     rel_diffX = inf
     rel_diffXY = inf
-    if dS.size == 0:
-        dS = np.zeros(np.shape(A))
 
     Whalf = np.sqrt(np.outer(weights, weights))
 
@@ -95,13 +105,14 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
                 else:
                     message = "No solution found in "\
                               + str(max_iterations) + " iterations"
-                raise ExceededMaxIterationsError(message, X, iteration, dS)
-            else: # exceptOnTooManyIterations is false so just silently
-                  # return the result even though it's not converged
+                raise ExceededMaxIterationsError(message, X, iteration, ds)
+            else:
+                # exceptOnTooManyIterations is false so just silently
+                # return the result even though it has not converged
                 return X
 
         Xold = copy(X)
-        R = X - dS
+        R = X - ds
         R_wtd = Whalf*R
         if flag == 0:
             X = proj_spd(R_wtd)
@@ -109,7 +120,7 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
             raise NotImplementedError("Setting 'flag' to 1 is currently\
                                  not implemented.")
         X = X / Whalf
-        dS = X - R
+        ds = X - R
         Yold = copy(Y)
         Y = copy(X)
         np.fill_diagonal(Y, 1)

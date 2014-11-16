@@ -78,22 +78,19 @@ class ResultsTests(unittest.TestCase):
         try:
             X = nearcorr(A, max_iterations=1)
         except nearest_correlation.ExceededMaxIterationsError as e:
-            X = np.copy(e.matrix)
-            ds = np.copy(e.ds)
+            restart = e
 
         # restart from previous result and do another iteration
         try:
-            X = nearcorr(X, max_iterations=1,dS=ds)
+            X = nearcorr(restart, max_iterations=1)
         except nearest_correlation.ExceededMaxIterationsError as e:
-            X  = np.copy(e.matrix)
-            ds = np.copy(e.ds)
+            restart = e
 
         # restart from previous result and do another iteration
         try:
-            X = nearcorr(X, max_iterations=1,dS=ds)
+            X = nearcorr(restart, max_iterations=1)
         except nearest_correlation.ExceededMaxIterationsError as e:
-            result1 = np.copy(e.matrix)
-            ds = np.copy(e.ds)
+            result1 = e.matrix
 
         self.assertTrue(np.all(result1 == result3))
 
