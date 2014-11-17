@@ -104,7 +104,7 @@ class InterfaceTests(unittest.TestCase):
                       [1,1,1],
                       [1,1,1]])
 
-        self.assertRaises(nearest_correlation.NotSymmetricError,nearcorr,A)
+        self.assertRaises(ValueError,nearcorr,A)
 
 
     # Ensure that an exception is raised when calculation does not converge befer maxiterations is exceeded
