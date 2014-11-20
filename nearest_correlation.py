@@ -4,10 +4,6 @@ from numpy import copy, dot
 from numpy.linalg import norm
 
 
-class NotImplementedError(Exception):
-    pass
-
-
 class ExceededMaxIterationsError(Exception):
     def __init__(self, msg, matrix=[], iteration=[], ds=[]):
         self.msg = msg
@@ -20,11 +16,11 @@ class ExceededMaxIterationsError(Exception):
 
 
 def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
-             weights=np.array([]), verbose=False,
+             weights=None, verbose=False,
              except_on_too_many_iterations=True):
     """
     X = nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
-        weights=np.array([]),print=0)
+        weights=None, print=0)
 
     Finds the nearest correlation matrix to the symmetric matrix A.
 
@@ -47,7 +43,7 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
     n_pos_eig (optional) is the known number of positive eigenvalues
     of A. CURRENTLY NOT IMPLEMENTED
 
-    weights is a vector defining a diagonal weight matrix diag(W).
+    weights is an optional vector defining a diagonal weight matrix diag(W).
 
     verbose = True for display of intermediate output.
     CURRENTLY NOT IMPLEMENTED
@@ -81,8 +77,8 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
         raise ValueError('Input Matrix is not symmetric')
     if not tol:
         tol = eps * np.shape(A)[0] * np.array([1, 1])
-    if weights.size == 0:
-        weights = np.ones((np.shape(A)[0], 1))
+    if weights is None:
+        weights = np.ones(np.shape(A)[0])
     X = copy(A)
     Y = copy(A)
     rel_diffY = inf
@@ -132,13 +128,8 @@ def nearcorr(A, tol=[], flag=0, max_iterations=100, n_pos_eig=0,
 
 
 def proj_spd(A):
+    # NOTE: the input matrix is assumed to be symmetric
     d, v = np.linalg.eigh(A)
-    A = v.dot(diag(nonneg(d))).dot(v.conj().T)
-    A = (A + A.conj().T) / 2
+    A = (v * np.maximum(d, 0)).dot(v.T)
+    A = (A + A.T) / 2
     return(A)
-
-
-def nonneg(A):
-    B = copy(A)
-    B[B < 0] = 0
-    return(B)
