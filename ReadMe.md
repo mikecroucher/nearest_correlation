@@ -1,5 +1,7 @@
 # Python versions of nearest correlation matrix algorithms.
 
+[![Build Status](https://travis-ci.org/mikecroucher/nearest_correlation.svg?branch=master)](https://travis-ci.org/mikecroucher/nearest_correlation)
+
 This module will eventually contain several algorithms for solving nearest correlation matrix problems.
 
 The only algorithm currently implemented is Nick Higham's. The code in this module is a port of the MATLAB original at http://nickhigham.wordpress.com/2013/02/13/the-nearest-correlation-matrix/
