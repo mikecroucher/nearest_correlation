@@ -3,4 +3,5 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-script: nearest_correlation_unittests.py
+install: "pip install numpy"
+script: python nearest_correlation_unittests.py
