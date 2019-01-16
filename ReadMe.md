@@ -86,7 +86,8 @@ array([[ 1.        ,  0.76073699,  0.15727601],
        [ 0.76073699,  1.        ,  0.76073699],
        [ 0.15727601,  0.76073699,  1.        ]])
 ```
-#Continuing failed computations
+# Continuing failed computations
+
 If a computation failed because the the number of iterations exceeded `max_iterations`, it is possible to continue by passing the exception obejct to `nearcorr`:
 ```python
 from nearest_correlation import nearcorr, ExceededMaxIterationsError
